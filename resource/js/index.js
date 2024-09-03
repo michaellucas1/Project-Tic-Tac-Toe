@@ -3,12 +3,54 @@ const board = [
     [null,null,null],
     [null,null,null],
     [null,null,null]
-];      
-function checkResult(){
-    
+];
+function checkWinner(array){
+    const symbolOne="x";
+    const symbolTwo="o";
+    let i=1;
+    let winningSymbol=array[0];
+    while(array.length>i){ 
+        if(array[i]!==winningSymbol){
+            return null;
+        }
+        i++;
+    }
+    return winningSymbol;
 }
-function setPlayerAction(playerSymbol,row,column){
-    board[row][column]=playerSymbol;
+   
+function checkResult(array){
+    let i=0;
+    let winner=null;
+    while(array.length>i){
+        const row = array[i];
+        if(!(row.includes(null))){
+            winner = checkWinner(row);
+            if(winner!==null){
+                return winner;
+            }
+        }
+        const column = getColumn(array,i);
+        if(!(column.includes(null))){
+            winner = checkWinner(column);
+            if(winner!==null){
+                return winner;
+            }
+        }
+        if(i===0 || i===array.length-1){
+            const diagonal = getDiagonal(array,i);
+            if(!(diagonal.includes(null))){
+                winner = checkWinner(diagonal);
+                if(winner!==null ){
+                    return winner;
+                }
+            }
+        }
+        i++;
+    }
+    return winner;
+}
+function setPlayerAction(array,playerSymbol,row,column){
+    array[row][column]=playerSymbol;
 }
 function getColumn(array,column){
     const result=[];
@@ -42,17 +84,19 @@ function getDiagonal(array,diagonal){
 }
 const playerOneSymbol="x";
 const playerTwoSymbol="O";
-setPlayerAction(playerOneSymbol,0,1);
-setPlayerAction(playerTwoSymbol,1,0);
-setPlayerAction(playerOneSymbol,0,0);
-setPlayerAction(playerTwoSymbol,1,1);
-setPlayerAction(playerTwoSymbol,0,2);
+setPlayerAction(board,playerOneSymbol,0,1);
+setPlayerAction(board,playerTwoSymbol,1,0);
+setPlayerAction(board,playerOneSymbol,0,0);
+setPlayerAction(board,playerTwoSymbol,1,1);
+setPlayerAction(board,playerTwoSymbol,0,2);
+setPlayerAction(board,playerTwoSymbol,2,0);
+setPlayerAction(board,playerOneSymbol,2,2);
 
 const rowTwo = board[2];
 const column=getColumn(board,0);
 //console.log(column);
 const diagonal=getDiagonal(board,2);
-
+console.log(checkResult(board));
 
 console.log(diagonal);
 console.log(board);
