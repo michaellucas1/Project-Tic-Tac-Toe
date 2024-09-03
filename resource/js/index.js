@@ -49,7 +49,7 @@ function checkResult(array){
     }
     return winner;
 }
-function setPlayerAction(array,playerSymbol,row,column){
+function setPlayerMove(array,playerSymbol,row,column){
     array[row][column]=playerSymbol;
 }
 function getColumn(array,column){
@@ -84,13 +84,13 @@ function getDiagonal(array,diagonal){
 }
 const playerOneSymbol="x";
 const playerTwoSymbol="O";
-setPlayerAction(board,playerOneSymbol,0,1);
-setPlayerAction(board,playerTwoSymbol,1,0);
-setPlayerAction(board,playerOneSymbol,0,0);
-setPlayerAction(board,playerTwoSymbol,1,1);
-setPlayerAction(board,playerTwoSymbol,0,2);
-setPlayerAction(board,playerTwoSymbol,2,0);
-setPlayerAction(board,playerOneSymbol,2,2);
+setPlayerMove(board,playerOneSymbol,0,1);
+setPlayerMove(board,playerTwoSymbol,1,0);
+setPlayerMove(board,playerOneSymbol,0,0);
+setPlayerMove(board,playerTwoSymbol,1,1);
+setPlayerMove(board,playerTwoSymbol,0,2);
+setPlayerMove(board,playerTwoSymbol,2,0);
+setPlayerMove(board,playerOneSymbol,2,2);
 
 const rowTwo = board[2];
 const column=getColumn(board,0);
