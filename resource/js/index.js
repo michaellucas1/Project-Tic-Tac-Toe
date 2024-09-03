@@ -1,103 +1,126 @@
-
-const board = [
-    [null,null,null],
-    [null,null,null],
-    [null,null,null]
-];
-function checkWinner(array){
-    const symbolOne="x";
-    const symbolTwo="o";
-    let i=1;
-    let winningSymbol=array[0];
-    while(array.length>i){ 
-        if(array[i]!==winningSymbol){
-            return null;
+function manageBoard(){
+    let board=[];
+    function createBoard(){
+        let i =0;
+        let j =0;
+        while(3>i){
+            j=0;
+            const array =[];
+            while(3>j){
+                array[j]=null;
+                j++;
+            }
+           board[i]=array;
+            i++;
         }
-        i++;
     }
-    return winningSymbol;
-}
-   
-function checkResult(array){
-    let i=0;
-    let winner=null;
-    while(array.length>i){
-        const row = array[i];
-        if(!(row.includes(null))){
-            winner = checkWinner(row);
-            if(winner!==null){
-                return winner;
+    createBoard();
+    function getBoard(){
+        return board;
+    }
+    function setMove(playerSymbol,row,column){
+        board[row][column]=playerSymbol;
+    }
+    function getRow(row){
+        return board[row];
+    }
+    function getColumn(column){
+        const result=[];
+        let i=0;
+        while(board.length>i){
+            result.push(board[i][column]);
+            i++;
+        }
+        return result;
+    }
+    function getDiagonal(diagonal){
+        const result=[];
+        let i=0;
+        if(diagonal+1===board.length){
+            while(board.length>i){
+                result.push(board[diagonal][i]);
+                diagonal--;
+                i++;
             }
         }
-        const column = getColumn(array,i);
-        if(!(column.includes(null))){
-            winner = checkWinner(column);
-            if(winner!==null){
-                return winner;
+        else if(diagonal===0){
+            while(board.length>i){
+                result.push(board[diagonal][i]);
+                i++;
+                diagonal++;
             }
         }
-        if(i===0 || i===array.length-1){
-            const diagonal = getDiagonal(array,i);
-            if(!(diagonal.includes(null))){
-                winner = checkWinner(diagonal);
-                if(winner!==null ){
+        return result;
+    }
+    function checkResult(){
+        let i=0;
+        let winner=null;
+        while(board.length>i){
+            const row = getRow(i);
+            if(!(row.includes(null))){
+                winner = checkWinner(row);
+                if(winner!==null){
                     return winner;
                 }
             }
-        }
-        i++;
-    }
-    return winner;
-}
-function setPlayerMove(array,playerSymbol,row,column){
-    array[row][column]=playerSymbol;
-}
-function getColumn(array,column){
-    const result=[];
-    let i=0;
-
-    while(array.length>i){
-        result.push(array[i][column]);
-        i++;
-    }
-    return result;
-}
-function getDiagonal(array,diagonal){
-    const result=[];
-    let i=0;
-    if(diagonal+1===array.length){
-        while(array.length>i){
-            result.push(array[diagonal][i]);
-            diagonal--;
+            const column = getColumn(i);
+            if(!(column.includes(null))){
+                winner = checkWinner(column);
+                if(winner!==null){
+                    return winner;
+                }
+            }
+            if(i===0 || i===board.length-1){
+                const diagonal = getDiagonal(i);
+                if(!(diagonal.includes(null))){
+                    winner = checkWinner(diagonal);
+                    if(winner!==null ){
+                        return winner;
+                    }
+                }
+            }
             i++;
         }
+        return winner;
     }
-    else if(diagonal===0){
-        while(array.length>i){
-            result.push(array[diagonal][i]);
+    function checkWinner(array){
+        const symbolOne="x";
+        const symbolTwo="o";
+        let i=1;
+        let winningSymbol=array[0];
+        while(array.length>i){ 
+            if(array[i]!==winningSymbol){
+                return null;
+            }
             i++;
-            diagonal++;
         }
+        return winningSymbol;
     }
-    
-    return result;
+    return {getBoard ,setMove, checkResult};
 }
-const playerOneSymbol="x";
-const playerTwoSymbol="O";
-setPlayerMove(board,playerOneSymbol,0,1);
-setPlayerMove(board,playerTwoSymbol,1,0);
-setPlayerMove(board,playerOneSymbol,0,0);
-setPlayerMove(board,playerTwoSymbol,1,1);
-setPlayerMove(board,playerTwoSymbol,0,2);
-setPlayerMove(board,playerTwoSymbol,2,0);
-setPlayerMove(board,playerOneSymbol,2,2);
 
-const rowTwo = board[2];
-const column=getColumn(board,0);
-//console.log(column);
-const diagonal=getDiagonal(board,2);
-console.log(checkResult(board));
+class Player {
+    constructor(name,symbol) {
+        let playerName = name;
+        let playerSymbol=symbol;
+        let playerScore=0;
+        let playerMoveCount=0;
+        this.getName=()=>{return playerName;};
+        this.getSymbol=()=>{return playerSymbol;};
+        this.getScore=()=>{return playerScore;};
+        this.setScore=(score)=>{return playerScore=score;};
+        this.getMoveCount=()=>{return playerMoveCount;};       
+        this.resetMoveCount=()=>{playerMoveCount=0;};
 
-console.log(diagonal);
+    }
+}
+const playerOne = new Player("john","x");
+const playerTwo=new Player("lucas","o");
+const gameBoard=manageBoard();
+gameBoard.setMove(playerOne.getSymbol(),0,0);
+gameBoard.setMove(playerTwo.getSymbol(),0,1);
+console.log(gameBoard.checkResult());
+let board = gameBoard.getBoard();
 console.log(board);
-
+function gameStart(){
+}
