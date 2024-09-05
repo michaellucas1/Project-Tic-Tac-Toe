@@ -12,6 +12,7 @@
     </header>
     <main>
         <div class="button-container">
+            <button class="modal-button button">Set Name</button>
             <button class="start-button button" type="button">Start</button>
             <button class="reset-button button" type="button">Restart</button>
         </div>
@@ -27,7 +28,20 @@
             <div class="player-result player-one"></div>
             <div class="player-result player-two"></div>
         </div>
-        
+        <dialog class="modal-container">
+            <span class="close-modal">&times;</span>
+            <form action="">
+                <div class="player-name-container">
+                    <label for="player-one-name">Player 1:</label>
+                    <input type="text" id="player-one-name" name="player-one-name">
+                </div>
+                <div class="player-name-container">
+                    <label for="player-two-name">Player 2:</label>
+                    <input type="text" id="player-two-name" name="player-one-name">
+                </div>
+                <button type="submit"> Submit</button>
+            </form>
+        </dialog>
         <div class="display-grid"></div>
     </main>
     <script src="./resource/js/index.js"></script>
