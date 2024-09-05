@@ -1,7 +1,12 @@
+:root{
+    --black-color:black;
+    --white-color:white;
+    --lightgray-color:rgb(214, 214, 214);
+}
 header{
     font-size:50px;
-    color:white;
-    background-color:black;
+    color:var(--lightgray-color);
+    background-color:var(--black-color);
     text-align: center;
 }
 body{
@@ -10,30 +15,42 @@ body{
     display:grid;
     grid-template-columns: repeat(1,1fr);
     grid-template-rows: repeat(1,1fr);
- 
+    background-color:var(--black-color);
 }
 .button-container{
     display:flex;
     justify-content: center;
     align-content:center;
-    padding-top:20px;
-    gap:20px 20px;
-    background-color:white;
+    padding:20px 0 20px 0;
+    gap:20px 100px;
+    background-color:var(--lightgray-color);
 }
 .button-container > button{
     font-size:16px;
     border-radius:100%;
     border:none;
-    color:white;
+    color:var(--lightgray-color);
     box-shadow:0 2px 6px 3px rgb(0,0,0,0.3) ;
-    background-color:black;
+    background-color:var(--black-color);
 
 }
 .button-container > button:nth-child(1){
     padding:8px 15px 8px 15px;
 }
+.button-container > button:hover{
+    padding:8px 15px 8px 15px;
+    background-color:rgb(36, 36, 36);
+    color:rgb(219, 219, 219);
+    animation:wobble 1s linear infinite;
+}
+.button-container > button:active{
+    padding:8px 15px 8px 15px;
+    background-color:rgb(57, 57, 57);
+    color:rgb(179, 179, 179);
+}
 .button-container > button:nth-child(2){
     padding:20px 8px 20px 8px;
+    
 }
 .display-grid{
     display:grid;
@@ -43,8 +60,9 @@ body{
     justify-content: center;
     align-content:center;
     gap:5px 5px;
-    background-color:black;
+    background-color:var(--black-color);
     padding:70px 0 30px 0;
+    
 }
 .grid-item{
     display:flex;
@@ -52,28 +70,81 @@ body{
     align-items:center;
     font-size:100px;
     user-select: none;
-    background-color:white;
-    border-radius:100%;
+    background-color:var(--lightgray-color);
+    color:var(--black-color);
+    border-radius: 50%;
+    transition: border-radius 1s;
+    
+}
+.player-container{
+    top:35px;
+    background-color: var(--lightgray-color);
 }
 .score-container{
+    top:40px;
+}
+.result-container{
+    top:45px;
+}
+.player-container,
+.score-container,
+.result-container{
     display:flex;
     flex-wrap: wrap;
     justify-content: space-between;
     position:relative;
-    top:50px;
-    background-color: rgb(214, 214, 214);
-
 }
-.player-score{
-    color:black;
+.player-name{
+    color:var(--black-color);
+}
+.player-score,
+.player-result{
+    color:var(--lightgray-color);
+}
+.player-name,
+.player-score,
+.player-result{
     font-size:30px;
     position: relative;
+    height: 30px;
 }
 .player-one{
-    
     left:150px;
 }
 .player-two{
    right:150px;
 }
-    
+.score-container > div:nth-child(1){
+    left:190px;
+}
+.score-container > div:nth-child(2){
+    right:190px;
+} 
+.result-container > div:nth-child(1){
+    left:145px;
+}
+.result-container > div:nth-child(2){
+    right:145px;
+} 
+.grid-item:hover{
+    animation:wobble 1s linear infinite
+}
+  @keyframes spin {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }
+  @keyframes wobble {
+    from {
+      transform: rotateX(0deg);
+    }
+    to {
+      transform: rotateX(1deg);
+    }
+  }
+  .disabled{
+    pointer-events:none;
+  }
