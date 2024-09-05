@@ -110,8 +110,9 @@ const manageBoard= (function(){
 function renderDom(){
     const gridContainer=document.querySelector(".display-grid");
     const gameManager=manageGame;
-    const playerOne=gameManager.createPlayer("John","&Chi;");
-    const playerTwo=gameManager.createPlayer("Lucas","&Omicron;");
+    const playerOne=gameManager.createPlayer("Player 1","&Chi;");
+    const playerTwo=gameManager.createPlayer("Player 2","&Omicron;");
+    const startButton= document.querySelector(".start-button");
     let currentPlayer=playerOne;
     function createGrid(gridSize){
         const gridCount=gridSize * gridSize;
@@ -124,16 +125,58 @@ function renderDom(){
                 const gridItemPosition=JSON.stringify({row:`${i}`,column:`${j}`});
                 gridItem.style.padding=`${calculateSquareSize(gridCount)}px`;
                 gridItem.classList.add('grid-item');
-                gridItem.textContent="-";
+                //gridItem.textContent="-";
                 gridItem.value=`${gridItemPosition}`;
                 gridItem.addEventListener("click",updateGameState);
+                gridItem.classList.add("add-opacity");
+                gridItem.style.animationPlayState="running";
                 gridContainer.appendChild(gridItem);
                 j++;
             }
             i++
         }
     }
-    const managePlayerStat= (function(){
+    function setGridAnimation(){
+        const gridItems = document.querySelectorAll(".grid-item");
+        const playerOneResult = document.querySelector(".result-container > .player-one");
+        const playerTwoResult= document.querySelector(".result-container > .player-two");
+        let i=0;
+        while(gridItems.length > i){
+            const background=window.getComputedStyle(gridItems[i]);
+            if(background.getPropertyValue("background-color")==="rgb(255, 0, 0)"){
+                gridItems[i].style.animationPlayState="paused";
+                gridItems[i].classList.remove("add-opacity");
+                gridItems[i].classList.add("remove-opacity");
+                gridItems[i].style.animationPlayState="running";
+            }
+            else if(background.getPropertyValue("background-color")==="rgb(0, 128, 0)"){
+                gridItems[i].style.animationPlayState="paused";
+                gridItems[i].classList.add("remove-opacity");
+                gridItems[i].classList.remove("add-opacity");
+                gridItems[i].style.animationPlayState="running";
+            }
+            i++;
+        }
+    }
+    function removeGridAnimation(){
+        const gridItems = document.querySelectorAll("grid-item");
+        let i=0;
+        while(gridItems.length > i){
+            const background=window.getComputedStyle(gridItems[i]);
+            if(background.getPropertyValue("background-color")==="rgb(255, 0, 0)"){
+                gridItems[i].classList.remove("red-animation");
+                
+            }
+            else if(background.getPropertyValue("background-color")==="rgb(0, 128, 0)"){
+                gridItems[i].classList.remove("green-animation");
+            }
+            i++;
+        }
+    }
+    const managePlayerDisplay= (function(){
+        const openModal = document.querySelector(".modal-button");
+        const closeModal = document.querySelector(".close-modal");
+        const dialog = document.querySelector("dialog");
         const playerOneScore = document.querySelector(".score-container > .player-one");
         const playerTwoScore= document.querySelector(".score-container > .player-two");
         const playerOneResult = document.querySelector(".result-container > .player-one");
@@ -147,8 +190,8 @@ function renderDom(){
             playerTwoScore.textContent="0";
         };
         const setTie=()=>{
-            playerOneResult.textContent+="It's  a tie!";
-            playerTwoResult.textContent+="It's  a tie!";   
+            playerOneResult.textContent+="It's a tie!";
+            playerTwoResult.textContent+="It's a tie!";   
         };
         const setWinner=(player)=>{
             if(player.getSymbol()==="&Chi;"){
@@ -162,6 +205,18 @@ function renderDom(){
             playerOneResult.textContent="";
             playerTwoResult.textContent=""; 
         };
+        openModal.addEventListener("click" ,showModal );
+        closeModal.addEventListener("click",hideModal);
+        function showModal(){
+            dialog.show();
+            openModal.removeEventListener("click",showModal);
+            closeModal.addEventListener("click",hideModal);
+        }
+        function hideModal(){
+            dialog.close();
+            closeModal.removeEventListener("click",hideModal);
+            openModal.addEventListener("click" ,showModal );
+        }
         return {setPlayerScore,resetPlayerScore,setTie,setWinner,resetWinner};
     })();
     function updateCurrentPlayer(){
@@ -189,21 +244,17 @@ function renderDom(){
         if(currentPlayer.getMoveCount()>=3){
             const result = gameManager.gameBoard.checkResult();
             if(result !== null){
-                if(result[0].getPlayer().getSymbol()===playerOne.getSymbol()){
-                    playerOne.setScore();
-                }
-                else{
-                    playerTwo.setScore();
-                }
-                managePlayerStat.setPlayerScore(playerOne.getScore(),playerTwo.getScore());
-                managePlayerStat.setWinner(result[0].getPlayer());
+               currentPlayer.setScore();
+                managePlayerDisplay.setPlayerScore(playerOne.getScore(),playerTwo.getScore());
+                managePlayerDisplay.setWinner(result[0].getPlayer());
                 setGreenColor(result);
                 removeAllListeners();
+                startButton.disabled=false;
             }
             else if(gameManager.gameBoard.isFull() && result===null){
-                managePlayerStat.setTie();
+                managePlayerDisplay.setTie();
                 removeAllListeners();
-
+                startButton.disabled=false;
             }
         }
         updateCurrentPlayer();
@@ -222,8 +273,8 @@ function renderDom(){
     }
     function removeAllListeners(){
         let i=0;
-        while(event.target.parentNode.children.length>i){
-            event.target.parentNode.children[i].removeEventListener("click", updateGameState);
+        while(gridContainer.children.length>i){
+            gridContainer.children[i].removeEventListener("click", updateGameState);
             i++;
         }
     }
@@ -237,20 +288,25 @@ function renderDom(){
         currentPlayer=playerOne;
     }
     function startGame(){
-        const startButton= document.querySelector(".start-button");
+        
         const resetButton= document.querySelector(".reset-button");
         startButton.addEventListener("click",initialize);
         function initialize(){
-            gridReset();
+            setGridAnimation();
+            setTimeout(()=>{
+                gridReset();
             gameManager.gameBoard.createBoard();
             playerOne.resetMoveCount();
             playerTwo.resetMoveCount();
-            managePlayerStat.resetWinner();
+            managePlayerDisplay.resetWinner(); 
             createGrid(3);
+            startButton.disabled=true;
+            },500);
+            
         }
         resetButton.addEventListener("click",resetAll);
         function resetAll(){
-            managePlayerStat.resetPlayerScore();
+            managePlayerDisplay.resetPlayerScore();
             resetCurrentPlayer()
             playerOne.resetScore();
             playerTwo.resetScore();
