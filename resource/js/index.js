@@ -18,8 +18,8 @@ const manageBoard= (function(){
     function getBoard(){
         return board;
     }
-    function setMove(playerSymbol,row,column){
-        board[row][column]=playerSymbol;
+    function setMove(gameState){
+        board[gameState.getRow()][gameState.getColumn()]=gameState;
     }
     function getRow(row){
         return board[row];
@@ -84,29 +84,36 @@ const manageBoard= (function(){
         return winner;
     }
     function checkWinner(array){
-        const symbolOne="&Chi;";
-        const symbolTwo="&Omicron;";
         let i=1;
-        let winningSymbol=array[0];
+        let winningSymbol=array[0].getPlayer().getSymbol();
         while(array.length>i){ 
-            if(array[i]!==winningSymbol){
+            if(array[i].getPlayer().getSymbol()!==winningSymbol){
                 return null;
             }
             i++;
         }
-        return winningSymbol;
+        return array;
     }
-    return {getBoard ,setMove, checkResult};
+    /* the isFull function checks if the array is full by looking for a null value. it returns false
+        when a null value is detected since it indicates that the array has not replaced every
+        initial value
+    */
+    function isFull(){
+        const rowOne =board[0].includes(null);
+        const rowTwo=board[1].includes(null);
+        const rowThree =board[2].includes(null);
+        return !(rowOne || rowTwo || rowThree);
+    }
+    return {createBoard,getBoard ,setMove, checkResult,isFull};
 })();
 
 function renderDom(){
+    const gridContainer=document.querySelector(".display-grid");
     const gameManager=manageGame;
     const playerOne=gameManager.createPlayer("John","&Chi;");
     const playerTwo=gameManager.createPlayer("Lucas","&Omicron;");
-    let currentPlayer=playerOne.getSymbol();
+    let currentPlayer=playerOne;
     function createGrid(gridSize){
-        const gridContainer=document.querySelector(".display-grid");
-        const example=document.querySelector(".grid-item > *");
         const gridCount=gridSize * gridSize;
         let i=0;
         let j=0;
@@ -116,64 +123,182 @@ function renderDom(){
                 const gridItem=document.createElement("div");
                 const gridItemPosition=JSON.stringify({row:`${i}`,column:`${j}`});
                 gridItem.style.padding=`${calculateSquareSize(gridCount)}px`;
-                gridItem.setAttribute("class","grid-item");
+                gridItem.classList.add('grid-item');
                 gridItem.textContent="-";
                 gridItem.value=`${gridItemPosition}`;
-                gridItem.addEventListener("click",selectedGrid);
+                gridItem.addEventListener("click",updateGameState);
                 gridContainer.appendChild(gridItem);
                 j++;
             }
             i++
         }
-
     }
-
-    function selectedGrid(event){
-        const elementValue=JSON.parse(event.target.value);
-        event.target.innerHTML=`${currentPlayer}`;
-        gameManager.gameBoard.setMove(event.target.innerHTML,elementValue.row,elementValue.column);
-        if(currentPlayer===playerOne.getSymbol()){
-    
-            currentPlayer=playerTwo.getSymbol();
+    const managePlayerStat= (function(){
+        const playerOneScore = document.querySelector(".score-container > .player-one");
+        const playerTwoScore= document.querySelector(".score-container > .player-two");
+        const playerOneResult = document.querySelector(".result-container > .player-one");
+        const playerTwoResult= document.querySelector(".result-container > .player-two");
+        const setPlayerScore=(oneScore,twoScore)=>{
+            playerOneScore.textContent=`${oneScore}`;
+            playerTwoScore.textContent=`${twoScore}`;
+        };
+        const resetPlayerScore=()=>{
+            playerOneScore.textContent="0";
+            playerTwoScore.textContent="0";
+        };
+        const setTie=()=>{
+            playerOneResult.textContent+="It's  a tie!";
+            playerTwoResult.textContent+="It's  a tie!";   
+        };
+        const setWinner=(player)=>{
+            if(player.getSymbol()==="&Chi;"){
+                playerOneResult.textContent+="You Win!";
+            }
+            else{
+                playerTwoResult.textContent+="You Win!";  
+            }
+        };
+        const resetWinner=()=>{
+            playerOneResult.textContent="";
+            playerTwoResult.textContent=""; 
+        };
+        return {setPlayerScore,resetPlayerScore,setTie,setWinner,resetWinner};
+    })();
+    function updateCurrentPlayer(){
+        if(currentPlayer.getSymbol()===playerOne.getSymbol()){
+            currentPlayer=playerTwo;
         }
         else{
-            currentPlayer=playerOne.getSymbol();
+            currentPlayer=playerOne;
         }
-        elementValue;
-        event.target.removeEventListener("click", selectedGrid);
-        console.log(elementValue);
-        
-        let board = gameManager.gameBoard.getBoard();
-        console.log(board);
-        console.log(gameManager.gameBoard.checkResult());
+    }
+    function updateGameState(event){  
+        const gridPosition=JSON.parse(event.target.value);
+        currentPlayer.setMoveCount();
+        event.target.innerHTML=currentPlayer.getSymbol();
+        event.target.style.backgroundColor="red";
+ 
+        const gameState=
+            gameManager.createGameState(
+                currentPlayer,
+                event.target,
+                gridPosition.row,
+                gridPosition.column,
+        );
+        gameManager.gameBoard.setMove(gameState);
+        if(currentPlayer.getMoveCount()>=3){
+            const result = gameManager.gameBoard.checkResult();
+            if(result !== null){
+                if(result[0].getPlayer().getSymbol()===playerOne.getSymbol()){
+                    playerOne.setScore();
+                }
+                else{
+                    playerTwo.setScore();
+                }
+                managePlayerStat.setPlayerScore(playerOne.getScore(),playerTwo.getScore());
+                managePlayerStat.setWinner(result[0].getPlayer());
+                setGreenColor(result);
+                removeAllListeners();
+            }
+            else if(gameManager.gameBoard.isFull() && result===null){
+                managePlayerStat.setTie();
+                removeAllListeners();
 
+            }
+        }
+        updateCurrentPlayer();
+        event.target.classList.add("disabled");
+        function setGreenColor(array){
+            let i =0;
+            while(array.length>i){
+                array[i].getGrid().style.backgroundColor="green";
+                i++;
+            }
+      
+        }
     }
     function calculateSquareSize(gridSize){
         return 250 / gridSize;
     }
-    return {createGrid};
+    function removeAllListeners(){
+        let i=0;
+        while(event.target.parentNode.children.length>i){
+            event.target.parentNode.children[i].removeEventListener("click", updateGameState);
+            i++;
+        }
+    }
+    function gridReset(){
+        removeAllListeners();
+        while(gridContainer.firstChild){
+            gridContainer.removeChild(gridContainer.firstChild);
+        }
+    }
+    function resetCurrentPlayer(){
+        currentPlayer=playerOne;
+    }
+    function startGame(){
+        const startButton= document.querySelector(".start-button");
+        const resetButton= document.querySelector(".reset-button");
+        startButton.addEventListener("click",initialize);
+        function initialize(){
+            gridReset();
+            gameManager.gameBoard.createBoard();
+            playerOne.resetMoveCount();
+            playerTwo.resetMoveCount();
+            managePlayerStat.resetWinner();
+            createGrid(3);
+        }
+        resetButton.addEventListener("click",resetAll);
+        function resetAll(){
+            managePlayerStat.resetPlayerScore();
+            resetCurrentPlayer()
+            playerOne.resetScore();
+            playerTwo.resetScore();
+            initialize();
+        }
+   
+    }    
+    return {createGrid,startGame};
 }
 class Player {
     constructor(name,symbol) {
         let playerName = name;
-        let playerSymbol=symbol;
-        let playerScore=0;
-        let playerMoveCount=0;
+        const playerSymbol=symbol;
+        this.playerScore=0;
+        this.playerMoveCount=0;
         this.getName=()=>{return playerName;};
         this.getSymbol=()=>{return playerSymbol;};
-        this.getScore=()=>{return playerScore;};
-        this.setScore=(score)=>{return playerScore=score;};
-        this.resetScore=()=>{playerScore=0;}
-        this.getMoveCount=()=>{return playerMoveCount;};       
-        this.resetMoveCount=()=>{playerMoveCount=0;};
+        this.getScore=()=>{return this.playerScore;};
+        this.setScore=()=>{this.playerScore++;};
+        this.resetScore=()=>{this.playerScore=0;}
+        this.getMoveCount=()=>{return this.playerMoveCount;}; 
+        this.setMoveCount=()=>{this.playerMoveCount++;};       
+        this.resetMoveCount=()=>{this.playerMoveCount=0;};
+    }
+}
+class GameState{
+    constructor(currentPlayer,selectedGrid,row,column){
+        const player=currentPlayer;
+        const grid = selectedGrid;
+        const gridRow=row;
+        const gridColumn=column;
+
+        this.getPlayer=()=>{return player};
+        this.getGrid=()=>{return grid};
+        this.getRow=()=>{return gridRow};
+        this.getColumn=()=>{return gridColumn};
     }
 }
 
 const manageGame=(function(){
     const gameBoard=manageBoard;
     function createPlayer(name,symbol){
-        return new Player(name,symbol)
+        return new Player(name,symbol);
     }
-    return{gameBoard,createPlayer};
+    function createGameState(currentPlayer,selectedGrid,row,column){
+        return new GameState(currentPlayer,selectedGrid,row,column);
+    }
+    return{gameBoard,createPlayer,createGameState};
 })();
-renderDom().createGrid(3);
+
+renderDom().startGame();
