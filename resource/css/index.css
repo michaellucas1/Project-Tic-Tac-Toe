@@ -34,21 +34,22 @@ body{
     background-color:var(--black-color);
 
 }
-.button-container > button:nth-child(1){
+.button-container > .modal-button{
+    padding:8px 15px 8px 15px;
+}
+.button-container > .start-button{
     padding:8px 15px 8px 15px;
 }
 .button-container > button:hover{
-    padding:8px 15px 8px 15px;
     background-color:rgb(36, 36, 36);
     color:rgb(219, 219, 219);
-    animation:wobble 1s linear infinite;
+
 }
 .button-container > button:active{
-    padding:8px 15px 8px 15px;
     background-color:rgb(57, 57, 57);
     color:rgb(179, 179, 179);
 }
-.button-container > button:nth-child(2){
+.button-container > .reset-button{
     padding:20px 8px 20px 8px;
     
 }
@@ -69,13 +70,13 @@ body{
     justify-content: center;
     align-items:center;
     font-size:100px;
+    -webkit-user-select: none;
     user-select: none;
     background-color:var(--lightgray-color);
     color:var(--black-color);
     border-radius: 50%;
-    transition: border-radius 1s;
-    
-}
+   
+} 
 .player-container{
     top:35px;
     background-color: var(--lightgray-color);
@@ -126,25 +127,34 @@ body{
 .result-container > div:nth-child(2){
     right:145px;
 } 
-.grid-item:hover{
-    animation:wobble 1s linear infinite
-}
-  @keyframes spin {
-    from {
-      transform: rotateY(0deg);
+
+.close-modal{
+    cursor:pointer;
+} 
+  @keyframes remove-opacity{
+    from{
+        opacity:100%;
     }
-    to {
-      transform: rotateY(360deg);
+    to{
+        opacity:0%;
     }
   }
-  @keyframes wobble {
-    from {
-      transform: rotateX(0deg);
+  @keyframes add-opacity{
+    from{
+        opacity:0%;
     }
-    to {
-      transform: rotateX(1deg);
+    to{
+        opacity:100%;
     }
   }
   .disabled{
     pointer-events:none;
+  }
+  .remove-opacity{
+    animation:remove-opacity 0.9s ease-in-out 0s 1 normal;
+    animation-play-state: paused;
+  }
+  .add-opacity{
+    animation:add-opacity 0.9s ease-in-out 0s 1 normal;
+    animation-play-state: paused;
   }
