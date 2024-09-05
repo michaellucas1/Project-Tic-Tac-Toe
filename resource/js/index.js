@@ -264,16 +264,16 @@ class Player {
     constructor(name,symbol) {
         let playerName = name;
         const playerSymbol=symbol;
-        this.playerScore=0;
-        this.playerMoveCount=0;
+        let playerScore=0;
+        let playerMoveCount=0;
         this.getName=()=>{return playerName;};
         this.getSymbol=()=>{return playerSymbol;};
-        this.getScore=()=>{return this.playerScore;};
-        this.setScore=()=>{this.playerScore++;};
-        this.resetScore=()=>{this.playerScore=0;}
-        this.getMoveCount=()=>{return this.playerMoveCount;}; 
-        this.setMoveCount=()=>{this.playerMoveCount++;};       
-        this.resetMoveCount=()=>{this.playerMoveCount=0;};
+        this.getScore=()=>{return playerScore;};
+        this.setScore=()=>{playerScore++;};
+        this.resetScore=()=>{playerScore=0;}
+        this.getMoveCount=()=>{return playerMoveCount;}; 
+        this.setMoveCount=()=>{playerMoveCount++;};       
+        this.resetMoveCount=()=>{playerMoveCount=0;};
     }
 }
 class GameState{
