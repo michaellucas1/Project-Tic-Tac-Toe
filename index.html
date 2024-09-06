@@ -17,31 +17,35 @@
             <button class="reset-button button" type="button">Restart</button>
         </div>
         <div class="player-container">
-            <div class="player-name player-one">Player 1</div>
-            <div class="player-name player-two">Player 2</div>
+            <div class="player-name player-one"></div>
+            <div class="player-name player-two"></div>
         </div>
         <div class="score-container">
-            <div class="player-score player-one">0</div>
-            <div class="player-score player-two">0</div>
+            <div class="player-score player-one"></div>
+            <div class="player-score player-two"></div>
         </div>
         <div class="result-container">
             <div class="player-result player-one"></div>
             <div class="player-result player-two"></div>
         </div>
-        <dialog class="modal-container">
-            <span class="close-modal">&times;</span>
-            <form action="">
-                <div class="player-name-container">
-                    <label for="player-one-name">Player 1:</label>
-                    <input type="text" id="player-one-name" name="player-one-name">
-                </div>
-                <div class="player-name-container">
-                    <label for="player-two-name">Player 2:</label>
-                    <input type="text" id="player-two-name" name="player-one-name">
-                </div>
-                <button type="submit"> Submit</button>
-            </form>
-        </dialog>
+        <div id="overlay">
+            <dialog id="modal" class="modal-container">
+                <span class="close-modal">&times;</span>
+                <form>
+                    <p>Set Name</p>
+                    <div class="player-name-container">
+                        <label for="player-one-name">Player 1:</label>
+                        <input type="text" id="player-one-name" name="player-one-name" maxlength="28">
+                    </div>
+                    <div class="player-name-container">
+                        <label for="player-two-name">Player 2:</label>
+                        <input type="text" id="player-two-name" name="player-two-name" maxlength="28">
+                    </div>
+                    <button class="submit-button" type="submit"> Submit</button>
+                </form>
+            </dialog>
+        </div>
+        
         <div class="display-grid"></div>
     </main>
     <script src="./resource/js/index.js"></script>
