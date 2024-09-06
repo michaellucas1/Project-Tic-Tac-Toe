@@ -125,7 +125,6 @@ function renderDom(){
                 const gridItemPosition=JSON.stringify({row:`${i}`,column:`${j}`});
                 gridItem.style.padding=`${calculateSquareSize(gridCount)}px`;
                 gridItem.classList.add('grid-item');
-                //gridItem.textContent="-";
                 gridItem.value=`${gridItemPosition}`;
                 gridItem.addEventListener("click",updateGameState);
                 gridItem.classList.add("add-opacity");
@@ -138,49 +137,44 @@ function renderDom(){
     }
     function setGridAnimation(){
         const gridItems = document.querySelectorAll(".grid-item");
-        const playerOneResult = document.querySelector(".result-container > .player-one");
-        const playerTwoResult= document.querySelector(".result-container > .player-two");
         let i=0;
         while(gridItems.length > i){
-            const background=window.getComputedStyle(gridItems[i]);
-            if(background.getPropertyValue("background-color")==="rgb(255, 0, 0)"){
-                gridItems[i].style.animationPlayState="paused";
-                gridItems[i].classList.remove("add-opacity");
-                gridItems[i].classList.add("remove-opacity");
-                gridItems[i].style.animationPlayState="running";
-            }
-            else if(background.getPropertyValue("background-color")==="rgb(0, 128, 0)"){
-                gridItems[i].style.animationPlayState="paused";
-                gridItems[i].classList.add("remove-opacity");
-                gridItems[i].classList.remove("add-opacity");
-                gridItems[i].style.animationPlayState="running";
-            }
-            i++;
-        }
-    }
-    function removeGridAnimation(){
-        const gridItems = document.querySelectorAll("grid-item");
-        let i=0;
-        while(gridItems.length > i){
-            const background=window.getComputedStyle(gridItems[i]);
-            if(background.getPropertyValue("background-color")==="rgb(255, 0, 0)"){
-                gridItems[i].classList.remove("red-animation");
-                
-            }
-            else if(background.getPropertyValue("background-color")==="rgb(0, 128, 0)"){
-                gridItems[i].classList.remove("green-animation");
-            }
+            gridItems[i].style.animationPlayState="paused";
+            gridItems[i].classList.remove("add-opacity");
+            gridItems[i].classList.add("remove-opacity");
+            gridItems[i].style.animationPlayState="running";
             i++;
         }
     }
     const managePlayerDisplay= (function(){
         const openModal = document.querySelector(".modal-button");
         const closeModal = document.querySelector(".close-modal");
+        const submitButton = document.querySelector(".submit-button");
+        const formData = document.querySelector("form");
         const dialog = document.querySelector("dialog");
         const playerOneScore = document.querySelector(".score-container > .player-one");
         const playerTwoScore= document.querySelector(".score-container > .player-two");
         const playerOneResult = document.querySelector(".result-container > .player-one");
         const playerTwoResult= document.querySelector(".result-container > .player-two");
+        const playerOneName = document.querySelector(".player-container > .player-one");
+        const playerTwoName= document.querySelector(".player-container > .player-two");
+        const setPlayerName=(oneName,twoName)=>{
+            playerOneName.textContent=`${oneName}`;
+            playerTwoName.textContent=`${twoName}`;
+        }
+        const hidePlayerNameAndScore=()=>{
+            playerOneScore.hidden=true;
+            playerOneName.hidden=true;
+            playerTwoScore.hidden=true;
+            playerTwoName.hidden=true;
+        };
+        const showPlayerNameAndScore=()=>{
+            playerOneScore.hidden=false;
+            playerOneName.hidden=false;
+            playerTwoScore.hidden=false;
+            playerTwoName.hidden=false;
+        };
+
         const setPlayerScore=(oneScore,twoScore)=>{
             playerOneScore.textContent=`${oneScore}`;
             playerTwoScore.textContent=`${twoScore}`;
@@ -205,19 +199,49 @@ function renderDom(){
             playerOneResult.textContent="";
             playerTwoResult.textContent=""; 
         };
-        openModal.addEventListener("click" ,showModal );
+        openModal.addEventListener("click" ,showModal);
         closeModal.addEventListener("click",hideModal);
+        formData.addEventListener("submit",submitName);
+        submitButton.addEventListener("click",hideModal);
         function showModal(){
             dialog.show();
             openModal.removeEventListener("click",showModal);
             closeModal.addEventListener("click",hideModal);
+            submitButton.addEventListener("click",hideModal);
+            document.body.classList.add("modal-open");
         }
         function hideModal(){
             dialog.close();
             closeModal.removeEventListener("click",hideModal);
-            openModal.addEventListener("click" ,showModal );
+            submitButton.removeEventListener("click",hideModal);
+            openModal.addEventListener("click" ,showModal);
+            document.body.classList.remove("modal-open");
         }
-        return {setPlayerScore,resetPlayerScore,setTie,setWinner,resetWinner};
+        function submitName(event){
+            event.preventDefault();
+            const myFormData = new FormData(event.target);
+            const formDataObject = {};
+            myFormData.forEach((value,key)=>(formDataObject[key]=value));
+            const playerOneName =formDataObject["player-one-name"] ?? "Player-1";
+            const playerTwoName =formDataObject["player-two-name"] ?? "Player-2";
+            if(playerOneName===""){
+                playerOneName="Player-1";
+            }
+            if(playerTwoName===""){
+                playerTwoName="Player-2";
+            }
+            setPlayerName(playerOneName,playerTwoName);
+        }
+        return {
+            setPlayerScore,
+            resetPlayerScore,
+            setTie,
+            setWinner,
+            resetWinner,
+            setPlayerName,
+            hidePlayerNameAndScore,
+            showPlayerNameAndScore
+        };
     })();
     function updateCurrentPlayer(){
         if(currentPlayer.getSymbol()===playerOne.getSymbol()){
@@ -288,10 +312,13 @@ function renderDom(){
         currentPlayer=playerOne;
     }
     function startGame(){
-        
         const resetButton= document.querySelector(".reset-button");
         startButton.addEventListener("click",initialize);
+        managePlayerDisplay.setPlayerName(playerOne.getName(),playerTwo.getName());
+        managePlayerDisplay.setPlayerScore(playerOne.getScore(),playerTwo.getScore());
+        managePlayerDisplay.hidePlayerNameAndScore();
         function initialize(){
+            managePlayerDisplay.showPlayerNameAndScore();
             setGridAnimation();
             setTimeout(()=>{
                 gridReset();
